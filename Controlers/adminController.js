@@ -335,3 +335,144 @@ exports.createNewTeacher = async (req, res) => {
         res.status(500).json({message: 'Internal Server Error'})
     }
 }
+
+
+
+exports.getAllStudents = async (req, res) => {
+    try {
+        const student = await studentModel.find()
+
+        res.status(200).json({message: 'these are all students', data: student})
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({message: 'Internal Server Error'})
+    }
+}
+
+
+
+exports.getAllTeachers = async (req, res) => {
+    try {
+        const teacher = await teacherModel.find()
+
+        res.status(200).json({message: 'these are all students', data: teacher})
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({message: 'Internal Server Error'})
+    }
+}
+
+
+
+
+exports.updateStudent = async (req, res) => {
+    try {
+        const {studentId} = req.params
+
+        const { fullName, email, stack } = req.body;
+
+
+        const student = await studentModel.findById(studentId)
+
+        if(!student) {
+            return res.status(404).json({message: 'student not found'})
+        }
+
+        const newStudent = {
+            fullName,
+            email,
+            stack
+        }
+
+
+        const updatedStudent = await studentModel.findByIdAndUpdate(studentId, newStudent, {new:true})
+
+        res.status(200).json({message: 'student has been updated successfully', data:updatedStudent})
+
+
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({message: 'Internal Server Error'})
+    }
+}
+
+
+
+
+exports.updateTeacher = async (req, res) => {
+    try {
+        const {teacherId} = req.params
+
+        const { fullName, email, teacherStack } = req.body;
+
+        const teacher = await teacherModel.findById(teacherId)
+
+        if(!teacher) {
+            return res.status(404).json({message: 'teacher not found'})
+        }
+
+        const newTeacher = {
+            fullName,
+            email,
+            teacherStack
+        }
+
+
+        const updatedTeacher = await teacherModel.findByIdAndUpdate(teacherId, newTeacher, {new:true})
+
+        res.status(200).json({message: 'student has been updated successfully', data:updatedTeacher})
+
+
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({message: 'Internal Server Error'})
+    }
+}
+
+
+
+
+exports.deleteStudent = async (req, res) => {
+    try {
+        const {studentId} = req.params
+
+        const student = await studentModel.findById(studentId)
+
+        if(!student) {
+            return res.status(404).json({message: 'student not found'})
+        }
+
+        const deletedStudent = await studentModel.findByIdAndDelete(studentId)
+
+        res.status(200).json({message: 'student has been deleted successfully', data: deletedStudent})
+
+        
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({message: 'Internal Server Error'})
+    }
+}
+
+
+
+
+exports.deleteTeacher = async (req, res) => {
+    try {
+        const {teacherId} = req.params
+
+        const teacher = await teacherModel.findById(teacherId)
+
+        if(!teacher) {
+            return res.status(404).json({message: 'teacher not found'})
+        }
+
+        const deletedTeacher = await teacherModel.findByIdAndDelete(teacherId)
+
+        res.status(200).json({message: 'teacher has been deleted successfully', data: deletedTeacher})
+
+        
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({message: 'Internal Server Error'})
+    }
+}

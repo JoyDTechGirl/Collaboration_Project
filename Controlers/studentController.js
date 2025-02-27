@@ -52,8 +52,6 @@ exports.register = async(req,res) => {
 
 
 
-
-
 exports.verifyAndResendEmail = async(req,res) => {
   try{
     const {token} = req.params;

@@ -20,9 +20,9 @@ router.post('/forget-password/resetPassword/:token',resetTeacherPassword)
 
 router.post('/changePassword/:teacherId',changeTeacherPassword)
 
-router.get('/getAllStudents/:studentId', authenticateAdmin, authenticateSuperAdmin,getAllStudents)
+router.get('/getAllStudents/:studentId', authenticateAdmin,getAllStudents)
 
-router.get('/getOneStudent/:studentId', authenticateAdmin, authenticateSuperAdmin,getOneStudent)
+router.get('/getOneStudent/:studentId', authenticateAdmin,getOneStudent)
 
 
 
