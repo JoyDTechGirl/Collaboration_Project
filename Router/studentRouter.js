@@ -1,8 +1,5 @@
 const {register, verifyAndResendEmail, login, forgotPassword, resetPassword, changePassword, readStudentDetails } = require('../Controlers/studentController');
 
-const {authenticate } = require('../middleware/authentication')
-
-
 const router = require('express').Router()
 
 router.post('/register',register)
@@ -17,6 +14,6 @@ router.post('/forget-password/resetPassword/:token',resetPassword)
 
 router.post('/resend-verification/changePassword/:studentId',changePassword)
 
-router.get('/readStudentDetails/:studentId',authenticate,readStudentDetails)
+router.get('/readStudentDetails/:studentId',readStudentDetails)
 
 module.exports = router;

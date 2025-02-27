@@ -19,6 +19,3 @@ app.use('/api/v1',adminRouter)
 app.listen(PORT,() => {
     console.log(`my server is listening to port ${PORT}`)
 })
-
-
-
