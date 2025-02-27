@@ -76,7 +76,7 @@ exports.verifyTeacherAndResendEmail = async(req,res) => {
   
             const newToken = await jwt.sign({teacherId:teacher._id}, process.env.JWT_SECRET, {expiresIn: '1h'})
   
-            const link = `${req.protocol}://${req.get('host')}/api/v1/verify-email/${newToken}`
+            const link = `${req.protocol}://${req.get('host')}/api/v1/verification-email/${newToken}`
   
             const firstName = teacher.fullName.split(' ')[0]
   
@@ -275,15 +275,18 @@ exports.changeTeacherPassword = async (req, res) => {
 
 exports.getAllStudents = async (req, res) => {
     try {
-        
-        const allStudents = await studentModel.find()
-
-        res.status(200).json({message: 'All students below', data: allStudents})
-
-    } catch (error) {
-        console.log(error.message)
-      res.status(500).json({message: 'Internal Server Error'})
+    const {studentId} = req.params
+    const allStudents = await teacherModel.find()
+    if(allStudents === null){
+      return res.status(404).json({message: 'Students Not Found'})
     }
+
+    res.status(200).json({message: 'All students below', data: allStudents})
+
+  } catch (error) {
+    console.log(error.message)
+   res.status(500).json({message: 'Internal Server Error'})
+  }
 }
 
 

@@ -77,7 +77,7 @@ exports.loginAdmin = async(req,res) => {
         return res.status(400).json({message: 'Incorrect Password'})
       }
   
-    //   const token = await jwt.sign({adminId: admin._id}, process.env.JWT_SECRET, {expiresIn: '1day'})
+      const token = await jwt.sign({adminId: admin._id}, process.env.JWT_SECRET, {expiresIn: '1day'})
   
       res.status(200).json({message: 'Login Successfully',data:admin })
 
@@ -211,30 +211,34 @@ exports.changeAdminPassword = async (req, res) => {
 
 
 exports.makeTeacherAdmin = async (req,res) => {
-    try {
-        
-        const {teacherId} = req.params
+  try{
+    console.log('Received request to make teacher admin');
+    const {teacherId} = req.params
 
-        const teacher = await teacherModel.findById(teacherId)
+    const teacher = await teacherModel.findById(teacherId)
+    console.log('Teacher fetched:', teacher);
 
-        if(!teacher) {
-            return res.status(404).json({message: 'teacher not found'})
-        }
-
-        if(teacher.isAdmin === true) {
-            return res.status(400).json({message: 'teacher is already an admin'})
-        }
-
-        teacher.isAdmin = true
-
-        await teacher.save()
-
-        res.status(200).json({message: 'teacher is now an admin', data: teacher})
-    } catch (error) {
-        console.log(error.message)
-      res.status(500).json({message: 'Internal Server Error'})
+    if(!teacher) {
+      console.log('Teacher not found');
+      return res.status(404).json({message: 'teacher not found'})
     }
-}
+
+    if(teacher.isAdmin === true) {
+      console.log('Teacher is already an admin');
+      return res.status(400).json({message: 'teacher is already an admin'})
+    }
+
+    teacher.isAdmin = true
+    await teacher.save()
+    console.log('Teacher admin status updated');
+
+    return res.status(200).json({message: 'teacher is now an admin', data: teacher})
+  }catch(err){
+    console.log('Error:', err.message);
+   return res.status(500).json({message: 'Internal Server Error'})
+  }
+};
+ 
 
 
 
@@ -408,13 +412,13 @@ exports.updateTeacher = async (req, res) => {
         const teacher = await teacherModel.findById(teacherId)
 
         if(!teacher) {
-            return res.status(404).json({message: 'teacher not found'})
+          return res.status(404).json({message: 'teacher not found'})
         }
 
         const newTeacher = {
-            fullName,
-            email,
-            teacherStack
+          fullName,
+          email,
+          teacherStack
         }
 
 
@@ -424,8 +428,8 @@ exports.updateTeacher = async (req, res) => {
 
 
     } catch (error) {
-        console.log(error.message)
-        res.status(500).json({message: 'Internal Server Error'})
+      console.log(error.message)
+      res.status(500).json({message: 'Internal Server Error'})
     }
 }
 
@@ -475,4 +479,47 @@ exports.deleteTeacher = async (req, res) => {
         console.log(error.message)
         res.status(500).json({message: 'Internal Server Error'})
     }
+};
+
+
+
+
+
+
+exports.getTeacherAndAssignStudent = async(req,res) => {
+  try{
+    const {teacherStack} = req.params;
+
+    const teacher = await teacherModel.findOne({stack: teacherStack})
+
+    if(teacher === null){
+      return res.status(404).json({message: 'Teacher Not Found'})
+    }
+
+    const result = teacher.populate('fullName','email','gender','stack')
+    res.status(200).json({message: 'Teacher Assign Student Successfully',data:result,totalStudents:studentId.length})
+  }catch(err){
+    console.log(err.message)
+    res.status(500).json({message: 'Error Getting All Teacher'})
+  }
+};
+
+
+
+
+exports.getStudentByStack = async(req,res) => {
+  try{
+    const {studentId} = req.params;
+    const {stack} = req.body;
+
+    const student = studentModel.findOne({_id:studentId},{stack:stack})
+
+    if(student === null){
+      return res.status(404).json({message: 'Student Not Found'})
+    }
+    res.status(200).json({message: 'Student info below',data:student})
+  }catch(err){
+    console.log(err.message)
+    res.status(500).json({message: 'Error Getting Student'})
+  }
 }

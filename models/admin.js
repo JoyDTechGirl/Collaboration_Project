@@ -17,6 +17,14 @@ const adminSchema = new mongoose.Schema({
     type:Boolean,
     default:true
   },
+  isAdmin: {
+    type: Boolean,
+    default: true
+  },
+  isSuperAdmin: {
+    type: Boolean,
+    default: true
+  },
 },{
   timestamp: true
 });
