@@ -1,4 +1,5 @@
 const studentModel = require('../models/Student')
+const teacherModel = require('../models/teacher')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt');
 const {signUpTemplate, forgotTemplate} = require('../utils/mailTemplate');
@@ -27,7 +28,7 @@ exports.register = async(req,res) => {
 
     const token = await jwt.sign({studentId: newStudent._id},process.env.JWT_SECRET,{expiresIn: '2days'})
 
-    const link = `${req.protocol}://${req.get('host')}/api/student-verify/${token}`
+    const link = `${req.protocol}://${req.get('host')}/api/v1/verify-email/${token}`
 
     const firstName = newStudent.fullName.split(' ')[0]
 
@@ -51,6 +52,8 @@ exports.register = async(req,res) => {
 
 
 
+
+
 exports.verifyAndResendEmail = async(req,res) => {
   try{
     const {token} = req.params;
@@ -59,7 +62,7 @@ exports.verifyAndResendEmail = async(req,res) => {
       return res.status(404).json({message: 'Token Not Found'})
     }
 
-    jwt.verify(token,process.env.JWT_SECRET,async(err,payload) => {
+    jwt.verify(token, process.env.JWT_SECRET, async(err,payload) => {
       if(err){
         if(err instanceof jwt.JsonWebTokenError){
           const decodedToken = jwt.decode(token)
@@ -69,7 +72,11 @@ exports.verifyAndResendEmail = async(req,res) => {
             return res.status(404).json({message: 'student Not Found'})
           }
 
-          const newToken = await jwt.sign({studentId:student._id},process.env.JWT_SECRET,{expiresIn: '1h'})
+          if(student.isVerified === true){
+            return res.status(400).json({message: 'student has already been verified'})
+          }
+
+          const newToken = await jwt.sign({studentId:student._id}, process.env.JWT_SECRET, {expiresIn: '1h'})
 
           const link = `${req.protocol}://${req.get('host')}/api/v1/verify-email/${newToken}`
 
@@ -77,12 +84,12 @@ exports.verifyAndResendEmail = async(req,res) => {
 
           const mailDetail = {
             subject: 'Email Verification',
-            to: student.email,
+            email: student.email,
             html: signUpTemplate(link,firstName)
           }
 
           await sendEmail(mailDetail)
-          res.status(200).json({message: 'Link expires,please check your email'})
+          res.status(200).json({message: 'Link expired, please check your email for new link'})
         }
       }else{
         console.log(payload)
@@ -108,9 +115,10 @@ exports.verifyAndResendEmail = async(req,res) => {
 };
 
 
+
 exports.login = async(req,res) => {
   try{
-    const {fullName,email,password} = req.body
+    const {email,password} = req.body
 
     if(!email) {
       return res.status(400).json({message: 'Please enter your email'})
@@ -125,7 +133,7 @@ exports.login = async(req,res) => {
       return res.status(404).json({message: 'Student Not Found'})
     }
 
-    const isCorrectPassword = await bcrypt.compare(password,student.password)
+    const isCorrectPassword = await bcrypt.compare(password, student.password)
 
     if(isCorrectPassword === false){
       return res.status(400).json({message: 'Incorrect Password'})
@@ -135,9 +143,9 @@ exports.login = async(req,res) => {
       return res.status(400).json({message: 'Account not verify, Please check your email for verification link'})
     }
 
-    const token = await jwt.sign({studentId: student._id},process.env.JWT_SECRET,{expiresIn: '1days'})
+    const token = await jwt.sign({studentId: student._id}, process.env.JWT_SECRET, {expiresIn: '1day'})
 
-    res.status(200).json({message: 'Login Successfully',data:student,token})
+    res.status(200).json({message: 'Login Successfully',data:student })
   }catch(err){
     console.log(err.message)
     res.status(500).json({message: 'Internal server error'})
@@ -158,7 +166,7 @@ exports.forgotPassword = async(req,res) => {
       return res.status(404).json({message: 'student Not Found'})
     }
 
-    const token = await jwt.sign({studentId: student._Id}, process.env.JWT_SECRET, { expiresIn: '15mins'})
+    const token = await jwt.sign({studentId: student._id}, process.env.JWT_SECRET, { expiresIn: '15mins'})
 
     const link = `${req.protocol}://${req.get('host')}/api/v1/forget-password/${token}`
 
@@ -180,6 +188,8 @@ exports.forgotPassword = async(req,res) => {
 };
 
 
+
+
 exports.resetPassword = async(req,res) => {
   try{
     const {token} = req.params;
@@ -188,7 +198,7 @@ exports.resetPassword = async(req,res) => {
       return res.status(404).json({message: 'Token Not Found'})
     }
 
-    const {confirmPassword,password} = req.body;
+    const {password, confirmPassword} = req.body;
 
     const {studentId} = await jwt.verify(token,process.env.JWT_SECRET)
 
@@ -197,8 +207,8 @@ exports.resetPassword = async(req,res) => {
     if(!student){
       return res.status(404).json({message: 'Student Not Found'})
     }
-    if(!password !== confirmPassword){
-      return res.status(400).json({message: 'Password does not found'})
+    if(password !== confirmPassword){
+      return res.status(400).json({message: 'Password does not match'})
     }
 
     const salt = await bcrypt.genSalt(10)
@@ -207,6 +217,9 @@ exports.resetPassword = async(req,res) => {
     student.password = hashedPassword
 
     await student.save()
+
+    res.status(200).json({message: 'password reset successful'})
+
   }catch(err){
     console.log(err.message)
     if(err instanceof jwt.JsonWebTokenError){
@@ -244,7 +257,7 @@ exports.changePassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, salt)
     // console.log(newPassword,salt)
 
-    student.newpassword = hashedPassword
+    student.password = hashedPassword
 
     await student.save()
 
@@ -256,3 +269,28 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({message: 'Internal Server Error'})
   }
 };
+
+
+
+
+exports.readStudentDetails = async (req, res) => {
+  try {
+
+    const {studentId} = req.params
+
+    const student = await studentModel.findById(studentId)
+    if(!student) {
+      return res.status(404).json({message: 'student not found'})
+    }
+
+    const studentDetails = await studentModel.findById(studentId)
+
+
+    res.status(200).json({message: `student details below with ratings for ${student.fullName}`, data: studentDetails})
+
+    
+  } catch (error) {
+    console.log(error.message)
+    res.status(500).json({message: 'Internal Server Error'})
+  }
+}
