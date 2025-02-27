@@ -14,6 +14,11 @@ const teacherSchema = new mongoose.Schema({
     type: String,
     require: true
   },
+  teacherStack:{
+    type:String,
+    enum: ['Frontend','Backend','Product-Design'],
+    require:true,
+  },
   isVerified: {
     type:Boolean,
     default:false
@@ -26,24 +31,7 @@ const teacherSchema = new mongoose.Schema({
     type: Boolean,
     default:false
   },
-  studentRating: [{
-    performance: {
-      type:Number,
-      require: true
-    },
-    attendance: {
-      type:Number,
-      require: true
-    },
-    assessment: {
-      type:Number,
-      require: true
-    },
-    totalRating: {
-      type:Number,
-      require:true
-    }
-  }],
+ 
   studentId : [{
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'Students',
