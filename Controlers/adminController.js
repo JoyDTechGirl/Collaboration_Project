@@ -533,9 +533,9 @@ exports.getTeacherAndAssignStudent = async (req, res) => {
 exports.getStudentByStack = async(req,res) => {
   try{
     const {studentId} = req.params;
-    const {stack} = req.body;
+    const stack = req.body;
 
-    const student = studentModel.findOne({_id:studentId},{stack:stack})
+    const student = await studentModel.findOne({_id:studentId},{stack:stack})
 
     if(student === null){
       return res.status(404).json({message: 'Student Not Found'})
@@ -546,3 +546,7 @@ exports.getStudentByStack = async(req,res) => {
     res.status(500).json({message: 'Error Getting Student'})
   }
 }
+
+
+
+
