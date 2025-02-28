@@ -285,7 +285,7 @@ exports.createNewStudent = async (req,res) => {
     
         await newStudent.save()
     
-        res.status(201).json({message:'student Register Successfully',data:newStudent,token})
+        res.status(201).json({message:'student Registered Successfully',data:newStudent,token})
 
         
     } catch (error) {
@@ -359,7 +359,7 @@ exports.getAllTeachers = async (req, res) => {
     try {
         const teacher = await teacherModel.find()
 
-        res.status(200).json({message: 'these are all students', data: teacher})
+        res.status(200).json({message: 'these are all teachers', data: teacher})
     } catch (error) {
         console.log(error.message)
         res.status(500).json({message: 'Internal Server Error'})
@@ -424,7 +424,7 @@ exports.updateTeacher = async (req, res) => {
 
         const updatedTeacher = await teacherModel.findByIdAndUpdate(teacherId, newTeacher, {new:true})
 
-        res.status(200).json({message: 'student has been updated successfully', data:updatedTeacher})
+        res.status(200).json({message: 'teacher has been updated successfully', data:updatedTeacher})
 
 
     } catch (error) {

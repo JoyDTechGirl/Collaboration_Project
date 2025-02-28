@@ -1,6 +1,6 @@
 
 const router = require('express').Router()
-const {authenticateAdmin, authenticateSuperAdmin, authenticate} = require('../middleware/authentication')
+const {authenticateAdmin, authenticateSuperAdmin} = require('../middleware/authentication')
 
 const {registerAdmin,loginAdmin, forgotAdminPassword, resetAdminPassword , changeAdminPassword, makeTeacherAdmin,
        createNewStudent, createNewTeacher, getAllStudents, getAllTeachers, updateStudent,
@@ -25,21 +25,21 @@ router.post('/createNewStudent', authenticateSuperAdmin, createNewStudent)
 
 router.post('/createNewTeacher', authenticateSuperAdmin, createNewTeacher)
 
-router.post('/getAllStudents', authenticateSuperAdmin, getAllStudents)
+router.get('/getAllStudents', authenticateSuperAdmin, getAllStudents)
 
-router.post('/createNewTeacher', authenticateSuperAdmin, getAllTeachers)
+router.get('/getAllTeachers', authenticateSuperAdmin, getAllTeachers)
 
-router.post('/updateStudent/:studentId', authenticateSuperAdmin, updateStudent)
+router.put('/updateStudent/:studentId', authenticateSuperAdmin, updateStudent)
 
-router.post('/updateTeacher/:teacherId', authenticateSuperAdmin, updateTeacher)
+router.put('/updateTeacher/:teacherId', authenticateSuperAdmin, updateTeacher)
 
-router.post('/updateTeacher/:teacherId', authenticateSuperAdmin, deleteStudent)
+router.delete('/deleteStudent/:studentId', authenticateSuperAdmin, deleteStudent)
 
-router.post('/updateTeacher/:teacherId', authenticateSuperAdmin, deleteTeacher)
+router.delete('/deleteTeacher/:teacherId', authenticateSuperAdmin, deleteTeacher)
 
-router.post('/getTeacherAndAssignStudent/:teacherStack', authenticateSuperAdmin, getTeacherAndAssignStudent)
+router.get('/getTeacherAndAssignStudent/:teacherStack', authenticateSuperAdmin, getTeacherAndAssignStudent)
 
-router.post('/getStudentByStack/:studentId', authenticateSuperAdmin, getStudentByStack)
+router.get('/getStudentByStack/:studentId', authenticateSuperAdmin, getStudentByStack)
 
 
 
