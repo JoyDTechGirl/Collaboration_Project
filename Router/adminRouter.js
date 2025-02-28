@@ -37,7 +37,7 @@ router.delete('/deleteStudent/:studentId', authenticateSuperAdmin, deleteStudent
 
 router.delete('/deleteTeacher/:teacherId', authenticateSuperAdmin, deleteTeacher)
 
-router.get('/getTeacherAndAssignStudent/:teacherStack', authenticateSuperAdmin, getTeacherAndAssignStudent)
+router.get('/getTeacherAndAssignStudent/:teacherId',authenticateSuperAdmin,getTeacherAndAssignStudent)
 
 router.get('/getStudentByStack/:studentId', authenticateSuperAdmin, getStudentByStack)
 

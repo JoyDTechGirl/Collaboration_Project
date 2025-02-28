@@ -486,23 +486,46 @@ exports.deleteTeacher = async (req, res) => {
 
 
 
-exports.getTeacherAndAssignStudent = async(req,res) => {
-  try{
-    const {teacherStack} = req.params;
+// exports.getTeacherAndAssignStudent = async(req,res) => {
+//   try{
+//     const {teacherStack} = req.params;
 
-    const teacher = await teacherModel.findOne({stack: teacherStack})
+//     const teacher = await teacherModel.findOne({stack: teacherStack})
 
-    if(teacher === null){
-      return res.status(404).json({message: 'Teacher Not Found'})
+//     if(teacher === null){
+//       return res.status(404).json({message: 'Teacher Not Found'})
+//     }
+
+//     const result = teacher.populate('fullName','email','gender','stack')
+//     res.status(200).json({message: 'Teacher Assign Student Successfully',data:result,totalStudents:studentId.length})
+//   }catch(err){
+//     console.log(err.message)
+//     res.status(500).json({message: 'Error Getting All Teacher'})
+//   }
+// };
+
+
+
+
+exports.getTeacherAndAssignStudent = async (req, res) => {
+  try {
+    const {teacherId} = req.params
+
+    const teacher = await teacherModel.findById(teacherId).populate('studentId', ['fullName', 'email', 'stack'])
+
+    if(!teacher) {
+      return res.status(404).json({message: 'teacher not found'})
     }
 
-    const result = teacher.populate('fullName','email','gender','stack')
-    res.status(200).json({message: 'Teacher Assign Student Successfully',data:result,totalStudents:studentId.length})
-  }catch(err){
+    res.status(200).json({message: 'find below the assigned teacher to student', data: teacher})
+    
+
+  } catch (err) {
     console.log(err.message)
-    res.status(500).json({message: 'Error Getting All Teacher'})
+    res.status(500).json({message: 'Error Getting Student'})
+    
   }
-};
+}
 
 
 
